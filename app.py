@@ -59,52 +59,38 @@ def index():
     cat_order = df2.groupby('Category').agg({
     'Category' : 'count'
         }).rename({'Category':'Total'}, axis=1).sort_values(by = 'Total', ascending = False).head()
-    X = cat_order.index
-    Y = cat_order['Total']
     my_colors = 'rgbkymc'
 
-    fig = plt.figure(figsize=(8,3),dpi=300)
-    fig.add_subplot()
-    plt.barh(X, Y, color = my_colors)
-    plt.savefig('cat_order.png', bbox_inches="tight") 
+    ax = cat_order.plot(kind = 'barh', color = my_colors, legend = False, figsize = (8,3))
 
     # Convert matplotlib PNG to base64 to be able to display it in html
     figfile = BytesIO()
-    plt.savefig(figfile, format='png')
+    plt.savefig(figfile, format='png', bbox_inches = 'tight')
     figfile.seek(0)
     figdata_png = base64.b64encode(figfile.getvalue())
     result = str(figdata_png)[2:-1]
     
     ## Scatter Plot
-    X = df2['Reviews'].values
-    Y = df2['Rating'].values
-    area = playstore['Installs'].values/10000000
-    fig = plt.figure(figsize=(5,5))
-    fig.add_subplot()
-
-    plt.scatter(x = X, y = Y, s = area, alpha = 0.3)
-    plt.xlabel('Reviews')
-    plt.ylabel('Rating')
-    plt.savefig('rev_rat.png',bbox_inches="tight")
+    ax = df2.plot(kind = 'scatter', x = 'Reviews', y = 'Rating', s = df2['Installs'].values/10000000, 
+                  alpha = 0.3, figsize = (5,5))
+    ax.set_xlabel('Reviews')
+    ax.set_ylabel('Rating')
 
     figfile = BytesIO()
-    plt.savefig(figfile, format='png')
+    plt.savefig(figfile, format='png', bbox_inches = 'tight')
     figfile.seek(0)
     figdata_png = base64.b64encode(figfile.getvalue())
     result2 = str(figdata_png)[2:-1]
 
     ## Histogram Size Distribution
-    X = (df2['Size']/1000000).values
-    fig = plt.figure(figsize=(5,5))
-    fig.add_subplot()
+    df2['Size'] = df2['Size']/1000000
 
-    plt.hist(X, bins = 100, density = True,  alpha = 0.75)
-    plt.xlabel('Size')
-    plt.ylabel('Frequency')
-    plt.savefig('hist_size.png',bbox_inches="tight")
+    ax = df2[['Size']].plot(kind = 'hist', bins = 100, density = True,  alpha = 0.75)
+    ax.set_xlabel('Size')
+    ax.set_ylabel('Frequency')
 
     figfile = BytesIO()
-    plt.savefig(figfile, format='png')
+    plt.savefig(figfile, format='png', bbox_inches = 'tight')
     figfile.seek(0)
     figdata_png = base64.b64encode(figfile.getvalue())
     result3 = str(figdata_png)[2:-1]
@@ -113,17 +99,12 @@ def index():
     content_rating = df2.groupby('Content Rating').mean()[['Installs']].sort_values(by = 'Installs', ascending = False)
     content_rating['Installs'] /= 1000
 
-    fig = plt.figure(figsize=(6,9))
-    fig.add_subplot()
-    plt.bar(content_rating.index, content_rating['Installs'])
-    plt.xticks(rotation = 45)
-
-    plt.xlabel('Size')
-    plt.ylabel('Average Install (Thousand)')
-    plt.savefig('rating_installs.png', bbox_inches = 'tight')
+    ax = content_rating.plot(kind = 'bar', rot = 45, legend = False, figsize = (6,9))
+    ax.set_xlabel('Size')
+    ax.set_ylabel('Average Install (Thousand)')
 
     figfile = BytesIO()
-    plt.savefig(figfile, format='png')
+    plt.savefig(figfile, format='png', bbox_inches = 'tight')
     figfile.seek(0)
     figdata_png = base64.b64encode(figfile.getvalue())
     result4 = str(figdata_png)[2:-1]
